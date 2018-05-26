@@ -1,8 +1,66 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<ServiceManifest Name="ActorsPkg"
-                 Version="1.0.0"
-                 xmlns="http://schemas.microsoft.com/2011/01/fabric"
-                 xmlns:xsd="http://www.w3.org/2001/XMLSchema"
-                 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance">
+<ServiceManifest xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" Name="ActorsPkg" Version="1.0.0" xmlns="http://schemas.microsoft.com/2011/01/fabric">
+  <ServiceTypes>
+    <StatefulServiceType ServiceTypeName="ActorsActorServiceType" HasPersistedState="true">
+      <Extensions>
+        <Extension Name="__GeneratedServiceType__" GeneratedId="ac384586-5b96-4053-a8ca-8ab40b458cad|Persisted">
+          <GeneratedNames xmlns="http://schemas.microsoft.com/2015/03/fabact-no-schema">
+            <DefaultService Name="ActorsActorService" />
+            <ReplicatorEndpoint Name="ActorsActorServiceReplicatorEndpoint" />
+            <ReplicatorConfigSection Name="ActorsActorServiceReplicatorConfig" />
+            <ReplicatorSecurityConfigSection Name="ActorsActorServiceReplicatorSecurityConfig" />
+            <StoreConfigSection Name="ActorsActorServiceLocalStoreConfig" />
+            <ServiceEndpointV2 Name="ActorsActorServiceEndpointV2" />
+          </GeneratedNames>
+        </Extension>
+      </Extensions>
+    </StatefulServiceType>
+    <StatefulServiceType ServiceTypeName="ThingActorServiceType" HasPersistedState="true">
+      <Extensions>
+        <Extension Name="__GeneratedServiceType__" GeneratedId="778ea02b-c118-4e5e-ad36-9ed763f4b6ee|Persisted">
+          <GeneratedNames xmlns="http://schemas.microsoft.com/2015/03/fabact-no-schema">
+            <DefaultService Name="ThingActorService" />
+            <ReplicatorEndpoint Name="ThingActorServiceReplicatorEndpoint" />
+            <ReplicatorConfigSection Name="ThingActorServiceReplicatorConfig" />
+            <ReplicatorSecurityConfigSection Name="ThingActorServiceReplicatorSecurityConfig" />
+            <StoreConfigSection Name="ThingActorServiceLocalStoreConfig" />
+            <ServiceEndpointV2 Name="ThingActorServiceEndpointV2" />
+          </GeneratedNames>
+        </Extension>
+      </Extensions>
+    </StatefulServiceType>
+    <StatefulServiceType ServiceTypeName="ThingGroupActorServiceType" HasPersistedState="true">
+      <Extensions>
+        <Extension Name="__GeneratedServiceType__" GeneratedId="d32b42ca-8556-4233-b87a-2bb0de5cdd62|Persisted">
+          <GeneratedNames xmlns="http://schemas.microsoft.com/2015/03/fabact-no-schema">
+            <DefaultService Name="ThingGroupActorService" />
+            <ReplicatorEndpoint Name="ThingGroupActorServiceReplicatorEndpoint" />
+            <ReplicatorConfigSection Name="ThingGroupActorServiceReplicatorConfig" />
+            <ReplicatorSecurityConfigSection Name="ThingGroupActorServiceReplicatorSecurityConfig" />
+            <StoreConfigSection Name="ThingGroupActorServiceLocalStoreConfig" />
+            <ServiceEndpointV2 Name="ThingGroupActorServiceEndpointV2" />
+          </GeneratedNames>
+        </Extension>
+      </Extensions>
+    </StatefulServiceType>
+  </ServiceTypes>
+  <CodePackage Name="Code" Version="1.0.0">
+    <EntryPoint>
+      <ExeHost>
+        <Program>Actors.exe</Program>
+      </ExeHost>
+    </EntryPoint>
+  </CodePackage>
+  <ConfigPackage Name="Config" Version="1.0.0" />
+  <Resources>
+    <Endpoints>
+      <Endpoint Name="ActorsActorServiceEndpointV2" />
+      <Endpoint Name="ActorsActorServiceReplicatorEndpoint" />
+      <Endpoint Name="ThingActorServiceEndpointV2" />
+      <Endpoint Name="ThingActorServiceReplicatorEndpoint" />
+      <Endpoint Name="ThingGroupActorServiceEndpointV2" />
+      <Endpoint Name="ThingGroupActorServiceReplicatorEndpoint" />
+    </Endpoints>
+  </Resources>
   <!-- O conteúdo será gerado durante a build -->
 </ServiceManifest>
