@@ -1,9 +1,6 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <ApplicationManifest xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" ApplicationTypeName="TrabalhoPucMinasType" ApplicationTypeVersion="1.0.0" xmlns="http://schemas.microsoft.com/2011/01/fabric">
   <Parameters>
-    <Parameter Name="ActorsActorService_PartitionCount" DefaultValue="10" />
-    <Parameter Name="ActorsActorService_MinReplicaSetSize" DefaultValue="3" />
-    <Parameter Name="ActorsActorService_TargetReplicaSetSize" DefaultValue="3" />
     <Parameter Name="ThingActorService_PartitionCount" DefaultValue="10" />
     <Parameter Name="ThingActorService_MinReplicaSetSize" DefaultValue="3" />
     <Parameter Name="ThingActorService_TargetReplicaSetSize" DefaultValue="3" />
@@ -18,11 +15,6 @@
     <ServiceManifestRef ServiceManifestName="ActorsPkg" ServiceManifestVersion="1.0.0" />
   </ServiceManifestImport>
   <DefaultServices>
-    <Service Name="ActorsActorService" GeneratedIdRef="ac384586-5b96-4053-a8ca-8ab40b458cad|Persisted">
-      <StatefulService ServiceTypeName="ActorsActorServiceType" TargetReplicaSetSize="[ActorsActorService_TargetReplicaSetSize]" MinReplicaSetSize="[ActorsActorService_MinReplicaSetSize]">
-        <UniformInt64Partition PartitionCount="[ActorsActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />
-      </StatefulService>
-    </Service>
     <Service Name="ThingActorService" GeneratedIdRef="778ea02b-c118-4e5e-ad36-9ed763f4b6ee|Persisted">
       <StatefulService ServiceTypeName="ThingActorServiceType" TargetReplicaSetSize="[ThingActorService_TargetReplicaSetSize]" MinReplicaSetSize="[ThingActorService_MinReplicaSetSize]">
         <UniformInt64Partition PartitionCount="[ThingActorService_PartitionCount]" LowKey="-9223372036854775808" HighKey="9223372036854775807" />

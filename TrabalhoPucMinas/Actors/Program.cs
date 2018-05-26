@@ -21,7 +21,9 @@ namespace Actors
                 // são populados automaticamente ao compilar este projeto.
                 // Para obter mais informações, consulte https://aka.ms/servicefabricactorsplatform
 
-                ActorRuntime.RegisterActorAsync<Actors> (
+                ActorRuntime.RegisterActorAsync<Thing>(
+                   (context, actorType) => new ActorService(context, actorType)).GetAwaiter().GetResult();
+                ActorRuntime.RegisterActorAsync<ThingGroup>(
                    (context, actorType) => new ActorService(context, actorType)).GetAwaiter().GetResult();
 
                 Thread.Sleep(Timeout.Infinite);
