@@ -7,6 +7,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Table;
+using Microsoft.WindowsAzure.Storage.Auth;
 
 namespace Actors
 {
@@ -14,6 +17,10 @@ namespace Actors
     public class Thing : Actor, IThing
     {
         private ThingState State = new ThingState();
+
+        const string NomeTable = "victorpuc";
+        const string keyTable = "D9cN80DLeOGyENshbh/PyocYoR9r0y8JRFi+VkqjzXMwXvYyVNB6HD01waENi4kxf4wkRqwkzHUvR5LkOljGpQ==";
+
         public Thing(ActorService actorService, ActorId actorId) : base(actorService, actorId)
         {
         }
@@ -36,9 +43,22 @@ namespace Actors
             return Task.FromResult(true);
         }
 
-        public Task ActivateMe(string region, int version)
+        public Task ActivateMeAsync(string region, int version)
         {
-            State._deviceInfo = new ThingInfo()
+            try
+            {
+                StorageCredentials credencial = new StorageCredentials(NomeTable, keyTable);
+                CloudStorageAccount conta = new CloudStorageAccount(credencial, true);
+                CloudTableClient cliente = conta.CreateCloudTableClient();
+                CloudTable Tabela = cliente.GetTableReference("Equipamentos");
+                Tabela.CreateIfNotExistsAsync();
+            }
+            catch (Exception e)
+            {
+                Console.WriteLine(e);
+            }
+            
+            /*State._deviceInfo = new ThingInfo()
             {
                 DeviceId = Guid.NewGuid().ToString(),
                 Region = region,
@@ -46,7 +66,7 @@ namespace Actors
             };
 
             // based on the info, assign a group... for demonstration we are assigning a random group
-            State._deviceGroupId = region;
+            State._deviceGroupId = region;*/
 
             var deviceGroup = ActorProxy.Create<IThingGroup>(new ActorId(region));
             return deviceGroup.RegisterDevice(State._deviceInfo);
