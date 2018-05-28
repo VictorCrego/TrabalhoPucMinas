@@ -5,8 +5,8 @@ using Microsoft.ServiceFabric.Actors.Client;
 using Microsoft.ServiceFabric.Actors.Runtime;
 using System;
 using System.Collections.Generic;
-using System.Text;
 using System.Threading.Tasks;
+using System.Configuration;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
 using Microsoft.WindowsAzure.Storage.Auth;
@@ -17,9 +17,6 @@ namespace Actors
     public class Thing : Actor, IThing
     {
         private ThingState State = new ThingState();
-
-        const string NomeTable = "victorpuc";
-        const string keyTable = "D9cN80DLeOGyENshbh/PyocYoR9r0y8JRFi+VkqjzXMwXvYyVNB6HD01waENi4kxf4wkRqwkzHUvR5LkOljGpQ==";
 
         public Thing(ActorService actorService, ActorId actorId) : base(actorService, actorId)
         {
@@ -45,28 +42,30 @@ namespace Actors
 
         public Task ActivateMeAsync(string region, int version)
         {
-            try
-            {
-                StorageCredentials credencial = new StorageCredentials(NomeTable, keyTable);
-                CloudStorageAccount conta = new CloudStorageAccount(credencial, true);
-                CloudTableClient cliente = conta.CreateCloudTableClient();
-                CloudTable Tabela = cliente.GetTableReference("Equipamentos");
-                Tabela.CreateIfNotExistsAsync();
-            }
-            catch (Exception e)
-            {
-                Console.WriteLine(e);
-            }
-            
-            /*State._deviceInfo = new ThingInfo()
+            String storageConnectionString = "DefaultEndpointsProtocol=https;AccountName=victorpuc;AccountKey=D9cN80DLeOGyENshbh/PyocYoR9r0y8JRFi+VkqjzXMwXvYyVNB6HD01waENi4kxf4wkRqwkzHUvR5LkOljGpQ==;EndpointSuffix=core.windows.net";
+            CloudTable cloudTable;
+            CloudStorageAccount cloudStorageAccount = CloudStorageAccount.Parse(storageConnectionString);
+            //var connectionString = ConfigurationManager.ConnectionStrings[storageConnectionString].ConnectionString;
+            var cloudTableClient = cloudStorageAccount.CreateCloudTableClient();
+            cloudTable = cloudTableClient.GetTableReference("Equipamentos");
+            cloudTable.CreateIfNotExistsAsync();
+
+            State._deviceInfo = new ThingInfo()
             {
                 DeviceId = Guid.NewGuid().ToString(),
                 Region = region,
                 Version = version
             };
 
+            var Device = new DeviceEntity(State._deviceInfo.DeviceId, State._deviceInfo.Region)
+            {
+                version = State._deviceInfo.Version.ToString()
+            };
+            TableOperation insertOperation = TableOperation.InsertOrReplace(Device);
+            cloudTable.ExecuteAsync(insertOperation);
+
             // based on the info, assign a group... for demonstration we are assigning a random group
-            State._deviceGroupId = region;*/
+            State._deviceGroupId = region;
 
             var deviceGroup = ActorProxy.Create<IThingGroup>(new ActorId(region));
             return deviceGroup.RegisterDevice(State._deviceInfo);

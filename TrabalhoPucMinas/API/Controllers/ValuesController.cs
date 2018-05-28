@@ -21,12 +21,13 @@ namespace API.Controllers
         }
 
         // GET api/values/5
-        [HttpGet("{id}")]
-        public async Task<IActionResult> GetAsync(int id)
+        [HttpGet("{region}/{version}")]
+        public async Task<string> GetAsync(string region, int version)
         {
-            var actor = ActorProxy.Create<IThing>(new ActorId(1), new Uri("fabric:/IotExercice/ThingActorService"));
-            await actor.ActivateMeAsync("Sudeste", 1);
-            return Ok();
+            var actor = ActorProxy.Create<IThing>(new ActorId(1), new Uri("fabric:/TrabalhoPucMinas/ThingActorService"));
+            await actor.ActivateMeAsync(region, version);
+            string versionString = Convert.ToString(version);
+            return "Região: " + region + " - Versão: " + versionString;
         }
 
         // POST api/values
