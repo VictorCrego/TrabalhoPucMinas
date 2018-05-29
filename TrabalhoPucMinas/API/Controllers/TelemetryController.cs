@@ -10,39 +10,38 @@ using Microsoft.ServiceFabric.Actors.Client;
 
 namespace API.Controllers
 {
-    [Route("api/ActivateMe")]
-    public class ValuesController : Controller
+    [Route("api/Telemetry")]
+    public class TelemetryController : Controller
     {
-        // GET /values
+        // GET api/values
         [HttpGet]
         public IEnumerable<string> Get()
         {
             return new string[] { "value1", "value2" };
         }
 
-        // GET /region/device/version
-        [HttpGet("{region}/{device}/{version}")]
-        public async Task<string> GetAsync(string region, string device, int version)
+        // GET /region/version
+        [HttpGet("{region}/{device}/{developedFault}")]
+        public async Task<string> GetAsync(string region, string device, bool developedFault)
         {
-                var actor = ActorProxy.Create<IThing>(new ActorId(device), new Uri("fabric:/TrabalhoPucMinas/ThingActorService"));
-                await actor.ActivateMeAsync(region, device, version);
-                string versionString = Convert.ToString(version);
-                return "Região: " + region + " - Versão: " + versionString;
+            var actor = ActorProxy.Create<IThing>(new ActorId(device), new Uri("fabric:/TrabalhoPucMinas/ThingActorService"));
+            await actor.SendTelemetryAsync(developedFault, device, region);
+            return "Região: " + region + " - Dispositivo: " + device + " - Falha: " + developedFault;
         }
 
-        // POST /values
+        // POST api/values
         [HttpPost]
         public void Post([FromBody]string value)
         {
         }
 
-        // PUT /values/5
+        // PUT api/values/5
         [HttpPut("{id}")]
         public void Put(int id, [FromBody]string value)
         {
         }
 
-        // DELETE /values/5
+        // DELETE api/values/5
         [HttpDelete("{id}")]
         public void Delete(int id)
         {

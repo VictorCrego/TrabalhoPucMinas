@@ -9,7 +9,7 @@ namespace Actors.Interfaces
 {
     public interface IThing : IActor
     {
-        Task ActivateMeAsync(string region, int version);
-        Task SendTelemetryAsync(ThingTelemetry telemetry);
+        Task ActivateMeAsync(string region, string device, int version);
+        Task SendTelemetryAsync(bool developedFault, string device, string region);
     }
 }

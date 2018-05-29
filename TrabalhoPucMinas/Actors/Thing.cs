@@ -6,16 +6,15 @@ using Microsoft.ServiceFabric.Actors.Runtime;
 using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using System.Configuration;
 using Microsoft.WindowsAzure.Storage;
 using Microsoft.WindowsAzure.Storage.Table;
-using Microsoft.WindowsAzure.Storage.Auth;
 
 namespace Actors
 {
     [StatePersistence(StatePersistence.Persisted)]
     public class Thing : Actor, IThing
     {
+        private readonly String storageConnectionString = "DefaultEndpointsProtocol=https;AccountName=victorpuc;AccountKey=D9cN80DLeOGyENshbh/PyocYoR9r0y8JRFi+VkqjzXMwXvYyVNB6HD01waENi4kxf4wkRqwkzHUvR5LkOljGpQ==;EndpointSuffix=core.windows.net";
         private ThingState State = new ThingState();
 
         public Thing(ActorService actorService, ActorId actorId) : base(actorService, actorId)
@@ -29,8 +28,9 @@ namespace Actors
             return base.OnActivateAsync();
         }
 
-        public Task SendTelemetryAsync(ThingTelemetry telemetry)
+        public Task SendTelemetryAsync(bool developedFault, string device, string region)
         {
+            ThingTelemetry telemetry = new ThingTelemetry() { DevelopedFault = developedFault, DeviceId = device, Region = region };
             State._telemetry.Add(telemetry); // saving data at the device level
             if (State._deviceGroupId != "")
             {
@@ -40,29 +40,27 @@ namespace Actors
             return Task.FromResult(true);
         }
 
-        public Task ActivateMeAsync(string region, int version)
+        public Task ActivateMeAsync(string region, string device, int version)
         {
-            String storageConnectionString = "DefaultEndpointsProtocol=https;AccountName=victorpuc;AccountKey=D9cN80DLeOGyENshbh/PyocYoR9r0y8JRFi+VkqjzXMwXvYyVNB6HD01waENi4kxf4wkRqwkzHUvR5LkOljGpQ==;EndpointSuffix=core.windows.net";
             CloudTable cloudTable;
             CloudStorageAccount cloudStorageAccount = CloudStorageAccount.Parse(storageConnectionString);
-            //var connectionString = ConfigurationManager.ConnectionStrings[storageConnectionString].ConnectionString;
             var cloudTableClient = cloudStorageAccount.CreateCloudTableClient();
             cloudTable = cloudTableClient.GetTableReference("Equipamentos");
             cloudTable.CreateIfNotExistsAsync();
 
-            State._deviceInfo = new ThingInfo()
+            var Device = new DeviceEntity(device, region)
             {
-                DeviceId = Guid.NewGuid().ToString(),
-                Region = region,
-                Version = version
-            };
-
-            var Device = new DeviceEntity(State._deviceInfo.DeviceId, State._deviceInfo.Region)
-            {
-                version = State._deviceInfo.Version.ToString()
+                Version = version.ToString()
             };
             TableOperation insertOperation = TableOperation.InsertOrReplace(Device);
             cloudTable.ExecuteAsync(insertOperation);
+
+            State._deviceInfo = new ThingInfo()
+            {
+                DeviceId = device,
+                Region = region,
+                Version = version
+            };
 
             // based on the info, assign a group... for demonstration we are assigning a random group
             State._deviceGroupId = region;

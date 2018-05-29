@@ -2,10 +2,11 @@
 using Dominio;
 using Microsoft.ServiceFabric.Actors;
 using Microsoft.ServiceFabric.Actors.Runtime;
+using Microsoft.WindowsAzure.Storage;
+using Microsoft.WindowsAzure.Storage.Table;
 using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 using System.Threading.Tasks;
 
 namespace Actors
@@ -13,7 +14,9 @@ namespace Actors
     [StatePersistence(StatePersistence.Persisted)]
     public class ThingGroup : Actor, IThingGroup
     {
+        private readonly String storageConnectionString = "DefaultEndpointsProtocol=https;AccountName=victorpuc;AccountKey=D9cN80DLeOGyENshbh/PyocYoR9r0y8JRFi+VkqjzXMwXvYyVNB6HD01waENi4kxf4wkRqwkzHUvR5LkOljGpQ==;EndpointSuffix=core.windows.net";
         private ThingGroupState State = new ThingGroupState();
+
         public ThingGroup(ActorService actorService, ActorId actorId) : base(actorService, actorId)
         {
         }
@@ -41,12 +44,19 @@ namespace Actors
 
         public Task SendTelemetryAsync(ThingTelemetry telemetry)
         {
+            CloudTable cloudTable;
+            CloudStorageAccount cloudStorageAccount = CloudStorageAccount.Parse(storageConnectionString);
+            var cloudTableClient = cloudStorageAccount.CreateCloudTableClient();
+            cloudTable = cloudTableClient.GetTableReference("Falhas");
+            cloudTable.CreateIfNotExistsAsync();
+
             if (telemetry.DevelopedFault)
             {
                 if (false == State._faultsPerRegion.ContainsKey(telemetry.Region))
                 {
                     State._faultsPerRegion[telemetry.Region] = 0;
                 }
+
                 State._faultsPerRegion[telemetry.Region]++;
                 State._faultyDevices.Add(State._devices.Where(d => d.DeviceId == telemetry.DeviceId).FirstOrDefault());
 
@@ -56,10 +66,15 @@ namespace Actors
                     foreach (var device in State._faultyDevices.Where(d => d.Region == telemetry.Region).ToList())
                     {
                         Console.WriteLine("\t{0}", device);
+                        var Falha = new FaultsEntity(telemetry.Region, device.DeviceId)
+                        {
+                            Version = device.Version
+                        };
+                        TableOperation insertOperation = TableOperation.InsertOrReplace(Falha);
+                        cloudTable.ExecuteAsync(insertOperation);
                     }
                 }
             }
-
             return Task.FromResult(true);
         }
     }

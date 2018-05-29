@@ -5,14 +5,14 @@ using System.Text;
 
 namespace Dominio
 {
-    public class DeviceEntity : TableEntity
+    public class FaultsEntity : TableEntity
     {
-        public DeviceEntity(string id, string region)
+        public FaultsEntity(string id, string device)
         {
             PartitionKey = id;
-            RowKey = region;
+            RowKey = device;
         }
 
-        public string Version { get; set; }
+        public int Version { get; set; }
     }
 }
